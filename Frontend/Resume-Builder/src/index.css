@@ -1,2 +1,77 @@
+/* Import Google Fonts */
 @import url('https://fonts.googleapis.com/css2?family=Urbanist:ital,wght@0,100..900;1,100..900&display=swap');
-@import "tailwindcss";
+
+/* Import Tailwind CSS layers properly for v4+ */
+@import "tailwindcss/preflight";
+@import "tailwindcss/components";
+@import "tailwindcss/utilities";
+
+/* Define CSS variables in :root */
+:root {
+  --font-display: "Urbanist", sans-serif;
+  --breakpoint-3xl: 1920px;
+  --color-primary: #9328E7;
+}
+
+/* Base layer */
+@layer base {
+  html {
+    font-family: var(--font-display);
+  }
+
+  body {
+    background-color: #fcfbfc;
+    overflow-x: hidden;
+  }
+}
+
+/* Custom scrollbar styling */
+.custom-scrolbar::-webkit-scrollbar {
+  width: 4px;
+}
+
+.custom-scrolbar::-webkit-scrollbar-thumb {
+  background-color: rgba(100, 100, 100, 0.4);
+  border-radius: 10px;
+}
+
+.custom-scrolbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* Animate text with a shine effect */
+@layer utilities {
+  @keyframes text-shine {
+    0% {
+      background-position: 0% 50%;
+    }
+    100% {
+      background-position: 100% 50%;
+    }
+  }
+
+  .animate-text-shine {
+    animation: text-shine 3s ease-in-out infinite alternate;
+  }
+}
+
+/* Utility classes using @apply */
+.input-box {
+  @apply w-full flex justify-between gap-3 text-sm text-black bg-gray-50 rounded px-4 py-3 mb-4 mt-3 border border-gray-100 outline-none focus-within:border-purple-300;
+}
+
+.btn-primary {
+  @apply inline-flex items-center justify-center gap-2 px-4 py-2 rounded text-white bg-purple-600 hover:bg-purple-700 active:bg-purple-800 focus:outline-none focus:ring-2 focus:ring-purple-300 transition-colors;
+}
+
+.btn-small {
+  @apply inline-flex items-center justify-center gap-1 px-3 py-1 text-sm rounded bg-purple-600 text-white hover:bg-purple-700 active:bg-purple-800 focus:outline-none focus:ring-2 focus:ring-purple-300 transition-colors;
+}
+
+.btn-small-light {
+  @apply inline-flex items-center justify-center gap-1 px-3 py-1 text-sm rounded border border-purple-600 text-purple-600 bg-transparent hover:bg-purple-50 active:bg-purple-100 focus:outline-none focus:ring-2 focus:ring-purple-300 transition-colors;
+}
+
+.form-input {
+  @apply w-full px-4 py-2 rounded border border-gray-300 bg-white text-gray-800 focus:border-purple-400 focus:ring-2 focus:ring-purple-200 outline-none transition-shadow;
+}
