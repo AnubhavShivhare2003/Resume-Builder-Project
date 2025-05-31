@@ -2,6 +2,9 @@ import React, { useState } from "react";
 
 import Img1 from "../assets/Img1.png"
 import { useNavigate } from "react-router-dom";
+import Modal from "../components/Modal";
+import Login from "../pages/Auth/Login"
+import SignUp from "../pages/Auth/SignUp"
 
 const LandingPage = () => {
   const navigate=useNavigate();
@@ -9,10 +12,19 @@ const LandingPage = () => {
   const [openAuthModal,setOpenAuthModal]=useState(false);
   const [currentPage,setCurrentPage]=useState("login")
 
-  const handleCTA=()=>{}
-    return (
-    <div className="w-full min-h-full bg-white pb-96">
-        <div className="container mx-auto px-4 py-6">
+  const handleCTA = (e) => {
+    e.preventDefault();
+    setOpenAuthModal(true);
+  };
+
+  const handleModalClose = () => {
+    setOpenAuthModal(false);
+    setCurrentPage("login");
+  };
+
+  return (
+    <div className="w-full min-h-screen flex flex-col bg-white">
+      <div className="container mx-auto px-4 py-6 flex-grow">
         {/* Header */}
         <header className="flex justify-between items-center mb-6">
             <div className="text-xl font-bold">Resume Builder</div>
@@ -51,39 +63,57 @@ const LandingPage = () => {
         </div>
       </div>
 
-      <section className="">
-        <h2 className="">
+      <section className="mt-16">
+        <h2 className="text-2xl font-bold text-center mb-12">
             Features That Make You Shine
         </h2>
-        <div className="">
-            <div className="">
-                <h3 className="">Easy Cutting</h3>
-                <p className="">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="bg-gray-50 p-6 rounded-xl shadow-sm hover:shadow-md transition ">
+                <h3 className="text-lg font-semibold mb-3">Easy Editing</h3>
+                <p className="text-gray-600">
                     Update your resume sections with live preview and instant 
                     formatting.
                 </p>
             </div>
 
-            <div className="">
-                <h3 className="">
+            <div className="bg-gray-50 p-6 rounded-xl shadow-sm hover:shadow-md transition">
+                <h3 className="text-lg font-semibold mb-3">
                     Beautiful Templates
                 </h3>
-                <p className="">
+                <p className="text-gray-600">
                     Choose from mordern, professional templates that are easy to 
                     customeize.
                 </p>
             </div>
 
-            <div className="">
-                <h3 className="">One-click Export</h3>
-                <p className="">
+            <div className="bg-gray-50 p-6 rounded-xl shadow-sm hover:shadow-md transition">
+                <h3 className="text-lg font-semibold mb-3">One-click Export</h3>
+                <p className="text-gray-600">
                     Download your resume instantly as a high-quality pdf with one 
                     click.
                 </p>
             </div>
         </div>
       </section>
-        </div>
+
+      </div>
+      <footer className="text-sm bg-gray-50 text-gray-600 text-center p-5 mt-auto">
+        Made With ❤️... Happy Coding
+      </footer>
+        
+
+        <Modal
+        isOpen={openAuthModal}
+        onClose={handleModalClose}
+        hideHeader
+        >
+            <div className="">
+                {currentPage==="login"&&<Login setCurrenPage={setCurrentPage}/>}
+                {currentPage==="signup"&&(
+                    <SignUp setCurrenPage={setCurrentPage}/>
+                )}
+            </div>
+        </Modal>
         </div>
     )
   

@@ -1,10 +1,10 @@
 /* Import Google Fonts */
 @import url('https://fonts.googleapis.com/css2?family=Urbanist:ital,wght@0,100..900;1,100..900&display=swap');
 
-/* Import Tailwind CSS layers properly for v4+ */
-@import "tailwindcss/preflight";
-@import "tailwindcss/components";
-@import "tailwindcss/utilities";
+/* Tailwind directives */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 /* Define CSS variables in :root */
 :root {
@@ -56,22 +56,24 @@
 }
 
 /* Utility classes using @apply */
-.input-box {
-  @apply w-full flex justify-between gap-3 text-sm text-black bg-gray-50 rounded px-4 py-3 mb-4 mt-3 border border-gray-100 outline-none focus-within:border-purple-300;
-}
+@layer components {
+  .input-box {
+    @apply w-full flex justify-between gap-3 text-sm text-black bg-gray-50 rounded px-4 py-3 mb-4 mt-3 border border-gray-100 outline-none focus-within:border-purple-300;
+  }
 
-.btn-primary {
-  @apply inline-flex items-center justify-center gap-2 px-4 py-2 rounded text-white bg-purple-600 hover:bg-purple-700 active:bg-purple-800 focus:outline-none focus:ring-2 focus:ring-purple-300 transition-colors;
-}
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 px-4 py-2 rounded text-white bg-purple-600 hover:bg-purple-700 active:bg-purple-800 focus:outline-none focus:ring-2 focus:ring-purple-300 transition-colors;
+  }
 
-.btn-small {
-  @apply inline-flex items-center justify-center gap-1 px-3 py-1 text-sm rounded bg-purple-600 text-white hover:bg-purple-700 active:bg-purple-800 focus:outline-none focus:ring-2 focus:ring-purple-300 transition-colors;
-}
+  .btn-small {
+    @apply inline-flex items-center justify-center gap-1 px-3 py-1 text-sm rounded bg-purple-600 text-white hover:bg-purple-700 active:bg-purple-800 focus:outline-none focus:ring-2 focus:ring-purple-300 transition-colors;
+  }
 
-.btn-small-light {
-  @apply inline-flex items-center justify-center gap-1 px-3 py-1 text-sm rounded border border-purple-600 text-purple-600 bg-transparent hover:bg-purple-50 active:bg-purple-100 focus:outline-none focus:ring-2 focus:ring-purple-300 transition-colors;
-}
+  .btn-small-light {
+    @apply inline-flex items-center justify-center gap-1 px-3 py-1 text-sm rounded border border-purple-600 text-purple-600 bg-transparent hover:bg-purple-50 active:bg-purple-100 focus:outline-none focus:ring-2 focus:ring-purple-300 transition-colors;
+  }
 
-.form-input {
-  @apply w-full px-4 py-2 rounded border border-gray-300 bg-white text-gray-800 focus:border-purple-400 focus:ring-2 focus:ring-purple-200 outline-none transition-shadow;
+  .form-input {
+    @apply w-full px-4 py-2 rounded border border-gray-300 bg-white text-gray-800 focus:border-purple-400 focus:ring-2 focus:ring-purple-200 outline-none transition-shadow;
+  }
 }
