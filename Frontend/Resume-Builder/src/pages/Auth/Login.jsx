@@ -1,12 +1,8 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Input from "../../components/inputs/input";
+import { validateEmail } from "../../utils/helper";
 
-const validateEmail = (email) => {
-    return String(email)
-        .toLowerCase()
-        .match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/);
-};
 
 const Login = ({ setCurrenPage }) => {
     const [email, setEmail] = useState("");
