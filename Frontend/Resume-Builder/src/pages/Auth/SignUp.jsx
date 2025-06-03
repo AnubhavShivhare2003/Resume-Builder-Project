@@ -3,8 +3,10 @@ import { useNavigate } from "react-router-dom";
 import Input from "../../components/inputs/input";
 import { validateEmail } from "../../utils/helper";
 import ProfilePhotoSelector from "../../components/inputs/ProfilePhotoSelector";
+import axiosInstance from "../../utils/axiosinstance";
+import { API_PATHS } from "../../utils/apiPaths";
 
-const SignUp = ({ setCurrenPage }) => {
+const SignUp = ({ setCurrentPage }) => {
     const [profilePic, setProfilePic] = useState(null);
     const [fullName, setfullName] = useState("");
     const [email, setEmail] = useState("");
@@ -88,7 +90,7 @@ const SignUp = ({ setCurrenPage }) => {
                     <button 
                         type="button"
                         className="font-medium text-primary underline cursor-pointer"
-                        onClick={() => setCurrenPage("login")}
+                        onClick={() => setCurrentPage("login")}
                     >
                         Login
                     </button>

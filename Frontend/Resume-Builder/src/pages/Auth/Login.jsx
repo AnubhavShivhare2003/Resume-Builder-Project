@@ -2,14 +2,19 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Input from "../../components/inputs/input";
 import { validateEmail } from "../../utils/helper";
+import { UserContext } from "../../context/userContext";
+import axiosInstance from "../../utils/axiosinstance";
+import { API_PATHS } from "../../utils/apiPaths";
+import { useContext } from "react";
 
 
-const Login = ({ setCurrenPage }) => {
+const Login = ({ setCurrentPage }) => {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [error, setError] = useState(null);
     const [isLoading, setIsLoading] = useState(false);
   
+     const {updateUser} = useContext(UserContext);
     const navigate = useNavigate();
 
     //Handle Login Form Submit
@@ -31,9 +36,23 @@ const Login = ({ setCurrenPage }) => {
         
         //Login Api Call 
         try {
-            
+            const response=await axiosInstance.post(API_PATHS.Auth.LOGIN,{
+                email,
+                password
+            })
+            const {token}=response.data;
+            if(token){
+                localStorage.setItem("token",token);
+                updateUser(response.data);
+                navigate("/dashboard")
+            }
         } catch (error) {
-            
+            if(error.response && error.response.data.message){
+                setError(error.response.data.message)
+            }
+            else{
+                setError("Something went wrong, Please try again.")
+            }
         }
     };
 
@@ -77,7 +96,7 @@ const Login = ({ setCurrenPage }) => {
                     <button
                         type="button"
                         className="font-medium text-purple-600 hover:text-purple-700 underline cursor-pointer ml-1"
-                        onClick={() => setCurrenPage("signup")}
+                        onClick={() => setCurrentPage("signup")}
                     >
                         Sign Up
                     </button>
