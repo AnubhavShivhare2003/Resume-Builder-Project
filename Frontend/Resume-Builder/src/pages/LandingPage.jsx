@@ -7,7 +7,9 @@ import Login from "../pages/Auth/Login"
 import SignUp from "../pages/Auth/SignUp"
 
 const LandingPage = () => {
-  const navigate=useNavigate();
+  
+  
+    const navigate=useNavigate();
 
   const [openAuthModal,setOpenAuthModal]=useState(false);
   const [currentPage,setCurrentPage]=useState("login")

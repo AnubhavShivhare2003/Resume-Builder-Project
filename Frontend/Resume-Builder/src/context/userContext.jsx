@@ -1,7 +1,6 @@
 import React, {createContext,useState,useEffect} from "react";
 import axiosInstance from "../utils/axiosinstance";;
 import { API_PATHS } from "../utils/apiPaths";
-import { Children } from "react";
 
 
 export const UserContext=createContext();
@@ -13,6 +12,7 @@ const UserProvider=({children})=>{
 
     useEffect(()=>{
         if(user) return;
+        
         const accessToken=localStorage.getItem("token");
         if(!accessToken){
             setLoading(false);
