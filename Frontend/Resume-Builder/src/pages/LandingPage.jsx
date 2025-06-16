@@ -1,22 +1,27 @@
 import React, { useState } from "react";
-
 import Img1 from "../assets/Img1.png"
 import { useNavigate } from "react-router-dom";
 import Modal from "../components/Modal";
 import Login from "../pages/Auth/Login"
 import SignUp from "../pages/Auth/SignUp"
-
+import { useContext } from "react";
+import { UserContext } from "../context/userContext";
+import ProfileInfoCard from "../components/Cards/ProfileInfoCard";
 const LandingPage = () => {
-  
+    const {user}= useContext(UserContext)
   
     const navigate=useNavigate();
 
   const [openAuthModal,setOpenAuthModal]=useState(false);
   const [currentPage,setCurrentPage]=useState("login")
 
-  const handleCTA = (e) => {
-    e.preventDefault();
-    setOpenAuthModal(true);
+  const handleCTA = () => {
+     if(!user){
+        setOpenAuthModal(true)
+     }
+     else{
+        navigate("/dashboard")
+     }
   };
 
   const handleModalClose = () => {
@@ -30,12 +35,12 @@ const LandingPage = () => {
         {/* Header */}
         <header className="flex justify-between items-center mb-6">
             <div className="text-xl font-bold">Resume Builder</div>
-            <button
+            {user ? <ProfileInfoCard/>:<button
             className="bg-purple-100 text-sm font-semibold text-black px-7 py-2.5 rounded-lg hover:bg-gray-800 hover:text-white transition-colors cursor-pointer"
             onClick={()=>setOpenAuthModal(true)}
             >
                 Login/Sign Up
-                </button>
+                </button>}
         </header>
       {/*Hero Content*/}
       <div className="flex flex-col md:flex-row items-center ">
