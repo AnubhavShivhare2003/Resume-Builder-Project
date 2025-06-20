@@ -2,7 +2,7 @@ import React from 'react'
 import Input from "../../../components/inputs/input"
 
 
-const ContactInfoForm = (contactInfo,updateSection) => {
+const ContactInfoForm = ({ contactInfo, updateSection }) => {
   return (
     <div className='px-5 pt-5'>
       <h2 className='text-lg font-semibold text-gray-900'>
@@ -48,7 +48,7 @@ const ContactInfoForm = (contactInfo,updateSection) => {
         label="GitHub"
         placeholder="http://github.com/username"
         type="text"
-        value={contactInfo.linkedin || ""}
+        value={contactInfo.github || ""}
         onChange={({target})=> updateSection("github", target.value)}
         />
 

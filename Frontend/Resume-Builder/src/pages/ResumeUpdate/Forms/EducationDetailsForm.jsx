@@ -46,7 +46,7 @@ const EducationDetailsForm = ({educationInfo,updateArrayItem,addArrayItem,remove
                         type="month"
                         value={education.endDate ||""}
                         onChange={({target})=>
-                        updateArrayItem(index,"endDate ",target.value)}
+                        updateArrayItem(index,"endDate",target.value)}
                         />
                         </div>
 
