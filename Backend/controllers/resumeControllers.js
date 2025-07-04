@@ -15,7 +15,7 @@ const createResume=async (req,res)=>{
         const defaultResumeData={
             profileInfo:{
                 profileImg:null,
-                previewUrl:"",
+                profilePreviewUrl:"",
                 fullName:"",
                 designation:"",
                 summary:"",
@@ -70,7 +70,8 @@ const createResume=async (req,res)=>{
             ],
             interests:[""]
         }
-        const newResume=await resumeModel.create({userId:req.user._id,title,...defaultResumeData});
+        
+         const newResume=await resumeModel.create({userId:req.user._id,title,...defaultResumeData});
         res.status(201).json(newResume);
     } catch (error) {
       res
@@ -155,7 +156,7 @@ const deleteResume=async(req,res)=>{
        }
 
        if(resume.profileInfo?.profilePreviewUrl){
-        const oldProfile=path.join(uploaddsFolder,path.basename(resume.profileInfo.profilePreviewUrl));
+        const oldProfile=path.join(uploadsFolder,path.basename(resume.profileInfo.profilePreviewUrl));
         if(fs.existsSync(oldProfile)){
             fs.unlinkSync(oldProfile)
         }

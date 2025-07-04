@@ -10,7 +10,7 @@ import {
 } from "react-icons/lu"
 import DashboardLayout from "../../components/layouts/DashboardLayout";
 import  TitleInput from "../../components/inputs/TitleInput"
-import {useReactToPrint} from "react-to-print";
+import { useReactToPrint } from "react-to-print";
 import axiosInstance from "../../utils/axiosinstance";
 import { API_PATHS } from "../../utils/apiPaths";
 import StepProgress from "../../components/StepProgress";
@@ -22,13 +22,20 @@ import SkillsInfoForm from "./Forms/SkillsInfoForm";
 import ProjectDetailForm from "./Forms/ProjectDetailForm";
 import CertificationInfoForm from "./Forms/CertificationInfoForm";
 import AdditionalInfoForm from "./Forms/AdditionalInfoForm";
+import RenderResume from "../../components/ResumeTemplates/RenderResume";
+import { captureElementAsImage, dataUrltoFile, fixTailWindColors } from "../../utils/helper";
+import { toast } from 'react-hot-toast';
+import ThemeSelector from "../ThemeSelector";
+import Modal from "../../components/Modal";
+import jsPDF from 'jspdf';
+import html2canvas from 'html2canvas';
 
 const EditResume=()=>{
     const {resumeId}=useParams();
     const navigate=useNavigate();
 
     const resumeRef=useRef(null);
-    const resumeDownloadRef=useRef(null);
+    const resumeDownloadRef = useRef(null);
 
     const [baseWidth, setBaseWidth]=useState(800);
 
@@ -425,10 +432,16 @@ const EditResume=()=>{
             )
             if(response.data && response.data.profileInfo){
                 const resumeInfo=response.data;
+                
                 setResumeData((prevState)=>({
                     ...prevState,
                     title:resumeInfo?.title ||"Untitled",
-                    profileInfo:resumeInfo?.profileInfo || prevState?.profileInfo,
+                    profileInfo:{
+                        ...prevState?.profileInfo,
+                        ...resumeInfo?.profileInfo,
+                        // Ensure profilePreviewUrl is preserved from server
+                        profilePreviewUrl: resumeInfo?.profileInfo?.profilePreviewUrl || prevState?.profileInfo?.profilePreviewUrl,
+                    },
                     template:resumeInfo?.template || prevState?.template,
                     contactInfo:resumeInfo?.contactInfo || prevState?.contactInfo,
                      workExperience:
@@ -448,18 +461,100 @@ const EditResume=()=>{
     };
 
     //Upload thumbnail and resume profile img
-    const uploadResumeImages=async()=>{};
+    const uploadResumeImages=async()=>{
+        try {
+            setIsLoading(true);
 
-    const updateResumeDetails=async(thumbnailLink, profilePreviewUrl)=>{};
+            fixTailWindColors(resumeRef.current);
+            const imageDataUrl=await captureElementAsImage(resumeRef.current);
+
+            //Convert based to file 
+            const thumbnailFile=dataUrltoFile(
+                imageDataUrl,
+                `resume-${resumeId}.png`
+            )
+
+            const profileImageFile=resumeData?.profileInfo?.profileImg ||null;
+            const existingProfileUrl=resumeData?.profileInfo?.profilePreviewUrl ||null;
+            
+            const formData=new FormData();
+            if(profileImageFile) formData.append("profileImage",profileImageFile);
+            if(thumbnailFile) formData.append("thumbnail",thumbnailFile);
+
+            const uploadResponse=await axiosInstance.put(
+                API_PATHS.RESUME.UPLOAD_IMAGES(resumeId),
+                formData,
+                {headers:{"Content-Type":"multipart/form-data"}}
+            )
+
+            const {thumbnailLink, profilePreviewUrl}=uploadResponse.data;
+            console.log("RESUME_DATA___",resumeData);
+
+            //call the second API to update other resume data
+            await updateResumeDetails(thumbnailLink,profilePreviewUrl || existingProfileUrl);
+            toast.success("Resume Updated Successfully");
+            navigate("/dashboard");
+
+        } catch (error) {
+            console.error("Error uploading images:",error);
+             toast.error("Failed to upload images");
+            
+        }finally{
+            setIsLoading(false)
+        }
+    };
+
+    const updateResumeDetails=async(thumbnailLink, profilePreviewUrl)=>{
+        try {
+            setIsLoading(true);
+
+            const response=await axiosInstance.put(
+                API_PATHS.RESUME.UPDATE(resumeId),
+                {
+                    ...resumeData,
+                    thumbnailLink:thumbnailLink ||"",
+                    profileInfo:{
+                        ...resumeData.profileInfo,
+                        profilePreviewUrl:profilePreviewUrl || resumeData.profileInfo.profilePreviewUrl ||"",
+                    }
+                }
+            );
+        } catch (error) {
+            console.error("Error capturing image:",error);
+        }
+        finally{
+            setIsLoading(false);
+        }
+    };
 
     //Delete Resume
-    const handleDeleteResume=async()=>{};
+    const handleDeleteResume=async()=>{
+      if (!window.confirm("Are you sure you want to delete this resume?")) return;
+      setIsLoading(true);
+      try {
+        await axiosInstance.delete(API_PATHS.RESUME.DELETE(resumeId));
+        toast.success("Resume deleted successfully!");
+        navigate("/dashboard");
+      } catch (error) {
+        toast.error("Failed to delete resume.");
+      } finally {
+        setIsLoading(false);
+      }
+    };
 
     //Download Resume
-    const reactToPrintFn=useReactToPrint({contentRef:resumeDownloadRef});
+    const reactToPrintFn = useReactToPrint({
+      content: () => resumeDownloadRef.current,
+      documentTitle: resumeData?.title || 'Resume',
+      removeAfterPrint: true,
+    });
 
     //Function to update baseWidth based on the resume container size
-    const updateBaseWidth=()=>{}
+    const updateBaseWidth=()=>{
+        if(resumeRef.current){
+            setBaseWidth(resumeRef.current.offsetWidth)
+        }
+    }
 
     useEffect(()=>{
         updateBaseWidth();
@@ -473,6 +568,35 @@ const EditResume=()=>{
             window.removeEventListener("resize", updateBaseWidth)
         }
     }, [])
+
+    // Add a print-hide class to hide elements when printing
+    const printHideClass = 'print:hidden';
+
+    // Print CSS to ensure only the resume prints and at full quality
+    const PrintStyles = () => (
+      <style>{`
+        @media print {
+          body * { visibility: hidden !important; }
+          #print-resume, #print-resume * { visibility: visible !important; }
+          #print-resume { position: absolute; left: 0; top: 0; width: 100vw !important; background: white !important; box-shadow: none !important; }
+        }
+      `}</style>
+    );
+
+    // Direct PDF download handler
+    const handleDownloadPDF = async () => {
+      if (!resumeDownloadRef.current) return;
+      const input = resumeDownloadRef.current;
+      const canvas = await html2canvas(input, { scale: 2, useCORS: true });
+      const imgData = canvas.toDataURL('image/png');
+      const pdf = new jsPDF({
+        orientation: 'portrait',
+        unit: 'px',
+        format: [canvas.width, canvas.height],
+      });
+      pdf.addImage(imgData, 'PNG', 0, 0, canvas.width, canvas.height);
+      pdf.save((resumeData?.title || 'Resume') + '.pdf');
+    };
 
     return (
         <DashboardLayout>
@@ -559,9 +683,64 @@ const EditResume=()=>{
                     </div>
                     <div ref={resumeRef} className="h-[100vh]">
                         {/*Resume Template */}
+
+                        <RenderResume
+                        templateId={resumeData?.template?.theme ||""}
+                        resumeData={resumeData}
+                        colorPalette={resumeData?.template?.colorPalette || []}
+                        containerWidth={baseWidth}
+                        />
                     </div>
                 </div>
             </div>
+            <Modal
+              isOpen={openThemeSelector}
+              onClose={()=>setOpenThemeSelector(false)}
+              title="Change Theme"
+            >
+                <div className="w-[90vw] h-[80vh]">
+                    <ThemeSelector
+                    selectedTheme={resumeData?.template}
+                    setSelectedTheme={(value)=>{
+                        setResumeData((prevstate)=>({
+                            ...prevstate,
+                            template:value || prevstate.template,
+                        }))
+                    }}
+                    resumeData={null}
+                    onClose={()=>setOpenThemeSelector(false)}
+                    />
+                </div>
+            </Modal>
+
+            {/* Preview & Download Modal */}
+            <Modal
+              isOpen={openPreviewModal}
+              onClose={() => setOpenPreviewModal(false)}
+              title="Preview & Download"
+            >
+              <PrintStyles />
+              <div className="overflow-auto flex justify-center items-center" style={{ minHeight: 0, minWidth: 0 }}>
+                <div
+                  ref={resumeDownloadRef}
+                  id="print-resume"
+                  className="bg-white p-4"
+                  style={{ width: 800, minHeight: 1100 }}
+                >
+                  <RenderResume
+                    templateId={resumeData?.template?.theme || ""}
+                    resumeData={resumeData}
+                    colorPalette={resumeData?.template?.colorPalette || []}
+                    containerWidth={800}
+                  />
+                </div>
+              </div>
+              <div className={`flex justify-end mt-4 ${printHideClass}`}>
+                <button className="btn-small" onClick={handleDownloadPDF}>
+                  <LuDownload className="inline mr-2" /> Download as PDF
+                </button>
+              </div>
+            </Modal>
         </DashboardLayout>
     )
 }

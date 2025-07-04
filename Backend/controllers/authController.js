@@ -52,9 +52,10 @@ const loginUser=async (req,res)=>{
               //compare Password;
               const isMatch=await bcrypt.compare(password,user.password);
               if(!isMatch){
-                return res.status(500).json({message:"Invalid email or password",error:error.message})
+                return res.status(500).json({message:"Invalid email or password"})
               }
-
+              
+             
               //Return user data with Jwt;
               res.json({_id:user._id,
                 name:user.name,
@@ -63,7 +64,8 @@ const loginUser=async (req,res)=>{
                 token:generateToken(user._id)
               })
     } catch (error) {
-       res.status(500).json({message:"Server error",error:error.message})    
+       res.status(500).json({message:"Server error",error:error.message})   
+       console.log(error) 
     }
 }
 
