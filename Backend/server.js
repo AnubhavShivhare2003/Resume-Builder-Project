@@ -10,11 +10,7 @@ const app=express();
 
 //Middleware to handle CORS
 app.use(
-    cors({
-        origin:process.env.CLIENT_URL || "*",
-        methods:["GET","POST","DELETE","PUT"],
-        allowedHeaders:["Content-type","Authorization"]
-    })
+    cors()
 );
 
 //Connect Database
